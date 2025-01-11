@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { Passcontext } from "./App";
 
 export default function SearchHandle() {
-  const YOUR_API_KEY = "AIzaSyDpYcH-GOMEBAJhe5zkRTLpQgZY4fmO_CI";
+  const YOUR_API_KEY = "";
   const context = useContext(Passcontext);
 
   if (!context) {
