@@ -14,10 +14,10 @@ export default function App() {
   }
 
   return (
-    <div>
+    <div className="">
       <input
         type="text"
-        className="border-2 border-black "
+        className=" relative border-2 border-black  top-2 p-1 left-[800px] rounded-xl"
         onChange={handleinput}
       />
       <Passcontext.Provider value={{ playid }}>
