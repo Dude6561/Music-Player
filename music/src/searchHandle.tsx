@@ -143,6 +143,7 @@ export default function SearchHandle() {
       </h1>
       <div className="relative  top-[110px] left-[650px]  font-extrabold text-white text-2xl">
         <h1> {handleTitle[arrayCount]}</h1>
+        <h1>Will complete this after some days</h1>
       </div>
     </div>
   );
