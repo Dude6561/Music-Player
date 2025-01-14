@@ -25,6 +25,9 @@ export default function App() {
       </Passcontext.Provider>
 
       <h1>{playid}</h1>
+      <h2>
+        ok function is callled now i have to work in responsive ness and designs
+      </h2>
     </div>
   );
 }
