@@ -23,9 +23,6 @@ export default function App() {
       <Passcontext.Provider value={{ playid }}>
         <SearchHandle />
       </Passcontext.Provider>
-
-      <h1>{playid}</h1>
-      <h2>ok function is callled now i have to ok</h2>
     </div>
   );
 }

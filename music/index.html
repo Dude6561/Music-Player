@@ -5,9 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + React + TS</title>
+    <script>
+      // Define the callback function for when the YouTube API is ready
+      function onYouTubeIframeAPIReady() {
+        // Set a flag in the global window object to indicate that the API is ready
+        window.isYouTubeAPIReady = true;
+      }
+    </script>
   </head>
   <body style="background-color: #6c5482">
     <div id="root"></div>
+
+    <!-- Load the YouTube IFrame API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Your app script -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

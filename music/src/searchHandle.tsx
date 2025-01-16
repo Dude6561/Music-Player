@@ -1,43 +1,30 @@
-import { useContext, useEffect } from "react";
+declare global {
+  interface Window {
+    YT: any; // This tells TypeScript about the global YT object
+  }
+}
+
+import { useContext, useEffect, useState } from "react";
 import { Passcontext } from "./App";
-import { useState } from "react";
 
 export default function SearchHandle() {
   const YOUR_API_KEY = "AIzaSyDpYcH-GOMEBAJhe5zkRTLpQgZY4fmO_CI";
   const context = useContext(Passcontext);
 
-  // replicated the api data structure for easyness
-  interface YoutubeDataItem {
-    contentDetails: {
-      videoId: string;
-    };
-    snippet: {
-      position: number;
-      title: string;
-      thumbnails: {
-        standard: {
-          url: URL;
-        };
-      };
-    };
-  }
-
   if (!context) {
     return <div>Error: Context is not available!</div>;
   }
 
-  //All the requried state variable
   const { playid } = context;
-  const [handledata, setHandleData] = useState<YoutubeDataItem[]>([]);
+  const [handleData, setHandleData] = useState<any[]>([]);
   const [handleId, setHandleId] = useState<string[]>([]);
   const [handleTitle, setHandleTitle] = useState<string[]>([]);
-  const [handleThumbnail, setHandleThumbnail] = useState<URL[]>([]);
+  const [handleThumbnail, setHandleThumbnail] = useState<string[]>([]);
   const [arrayCount, setArrayCount] = useState<number>(0);
+  const [controls, setcontrols] = useState<number>(1);
 
-  //fetching Data From Youtube API
-
+  // Load YouTube data
   const fetchYoutubeData = async () => {
-    let Apidata = null;
     try {
       const response = await fetch(
         `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails&maxResults=50&playlistId=${playid}&key=${YOUR_API_KEY}`
@@ -45,65 +32,88 @@ export default function SearchHandle() {
       if (!response.ok) {
         throw new Error("Failed To Fetch Data");
       }
-      Apidata = await response.json();
-      setHandleData(Apidata.items); // Set the fetched data here
-    } catch (Error) {
-      console.error("error fetching youtube Data");
+      const Apidata = await response.json();
+      setHandleData(Apidata.items);
+    } catch (error) {
+      console.error("Error fetching YouTube data:", error);
     }
   };
 
-  // mapping over item of json and setting value of id title and thumbnail :)
-  // datas are parameter we are passing handle data through datas
-  function setData() {
-    if (handledata.length > 0) {
-      handledata.forEach((datas, index) => {
-        setHandleTitle((prev) => [...prev, datas.snippet.title]);
-        setHandleId((prev) => [...prev, datas.contentDetails.videoId]);
+  // Set the fetched data
+  useEffect(() => {
+    if (handleData.length > 0) {
+      handleData.forEach((data) => {
+        setHandleTitle((prev) => [...prev, data.snippet.title]);
+        setHandleId((prev) => [...prev, data.contentDetails.videoId]);
         setHandleThumbnail((prev) => [
           ...prev,
-          datas.snippet.thumbnails.standard.url,
+          data.snippet.thumbnails.standard.url,
         ]);
       });
     }
-    console.log(handleTitle);
-    console.log(handleId);
-    console.log(handledata);
-  }
+  }, [handleData]);
 
-  useEffect(() => {
-    if (handledata.length > 0) {
-      setData(); // Call setData only when handledata is populated
+  // Play YouTube video using the YT API
+  const fetchyoutubeAudio = (videoId: string) => {
+    try {
+      if (window.YT) {
+        new window.YT.Player("player", {
+          height: "360",
+          width: "640",
+          videoId,
+          events: {
+            onReady: (event: any) => {
+              event.target.playVideo();
+            },
+          },
+        });
+      } else {
+        console.error("YouTube API not loaded.");
+      }
+    } catch (error) {
+      console.error("Error creating YouTube player", error);
     }
-  }, [handledata]); // Re-run the effect when handledata changes
-
-  // solution for double clicking because react batches the state update and the dat awasnt updating
-  const handleDoubleClickSimulation = () => {
-    fetchYoutubeData(); // First click
-    setTimeout(() => {
-      fetchYoutubeData(); // Second click after a small delay
-    }, 100); // 100ms delay
   };
 
-  //function for changing title
-  function handleNext() {
-    setArrayCount(arrayCount + 1);
-  }
-  function handlePrevious() {
-    setArrayCount(arrayCount - 1);
-  }
+  // Next button handler
+  const handleNext = () => {
+    if (arrayCount < handleData.length - 1) {
+      setArrayCount(arrayCount + 1);
+    }
+  };
+
+  // Previous button handler
+  const handlePrevious = () => {
+    if (arrayCount > 0) {
+      setArrayCount(arrayCount - 1);
+    }
+  };
+
+  //function for playpause
+  const pp = () => {
+    if (controls == 1) {
+      setcontrols(2);
+    } else {
+      setcontrols(1);
+    }
+    console.log(controls);
+  };
 
   return (
-    <div className=" ">
-      <div className=" ">
-        <button
-          onClick={handleDoubleClickSimulation}
-          className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-full text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 absolute left-[1000px]  bottom-[875px]"
-        >
-          Search
-        </button>
-      </div>
+    <div>
+      <button
+        onClick={() => {
+          fetchYoutubeData(); // Fetch YouTube data
+          if (handleId[arrayCount]) {
+            fetchyoutubeAudio(handleId[arrayCount]); // Play video based on the current ID
+          }
+        }}
+        className="text-white bg-gray-800"
+      >
+        Search
+      </button>
 
-      <div className="flex items-center justify-center   space-x-8  relative top-36">
+      <div className="flex items-center justify-center space-x-8 relative top-36">
         <img
           src={handleThumbnail[arrayCount + 1]?.toString()}
           alt="img"
@@ -114,7 +124,6 @@ export default function SearchHandle() {
           alt="img"
           className="h-96 w-96 box-border bg-white"
         />
-
         <img
           src={handleThumbnail[arrayCount + 2]?.toString()}
           alt="img"
@@ -122,7 +131,7 @@ export default function SearchHandle() {
         />
       </div>
 
-      <div className=" flex space-x-32 p-4 relative top-[320px] left-[850px] ">
+      <div className="flex space-x-32 p-4 relative top-[320px] left-[850px] ">
         <img
           width="50"
           height="50"
@@ -138,13 +147,23 @@ export default function SearchHandle() {
           onClick={handleNext}
         />
       </div>
-      <h1 className="relative relative top-[110px] left-[900px]  font-extrabold text-white text-2xl">
-        Music Name
-      </h1>
-      <div className="relative  top-[110px] left-[650px]  font-extrabold text-white text-2xl">
-        <h1> {handleTitle[arrayCount]}</h1>
-        <h1>Will complete this after some days</h1>
+
+      <div className="relative top-[110px] left-[800px] font-extrabold text-white text-2xl">
+        <h1 className="relative top-[110px] left-[900px] font-extrabold text-white text-2xl">
+          Music Name
+        </h1>
+        <h1>{handleTitle[arrayCount]}</h1>
       </div>
+      <div className="flex justify-center mt-10">
+        <iframe
+          width="0"
+          height="0"
+          src={`https://www.youtube.com/embed/${handleId[arrayCount]}?autoplay=${controls} `}
+          allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        ></iframe>
+      </div>
+      <button onClick={() => pp()}>pause</button>
     </div>
   );
 }
