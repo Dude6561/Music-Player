@@ -24,7 +24,7 @@ export default function App() {
         <SearchHandle />
       </Passcontext.Provider>
       <h1>day 7 of not learning anything</h1>
-      <h2>Tommrow we do site cloning </h2>
+      <h2>Tommrow we do site cloning to learn cssg </h2>
     </div>
   );
 }
