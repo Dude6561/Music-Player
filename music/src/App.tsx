@@ -23,8 +23,6 @@ export default function App() {
       <Passcontext.Provider value={{ playid }}>
         <SearchHandle />
       </Passcontext.Provider>
-      <h1>day 7 of not learning anything</h1>
-      <h2>Tommrow we do site cloning to learn cssg </h2>
     </div>
   );
 }

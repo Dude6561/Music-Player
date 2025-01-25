@@ -148,10 +148,8 @@ export default function SearchHandle() {
         />
       </div>
 
-      <div className="relative top-[110px] left-[800px] font-extrabold text-white text-2xl">
-        <h1 className="relative top-[110px] left-[900px] font-extrabold text-white text-2xl">
-          Music Name
-        </h1>
+      <div className="relative top-[110px] left-[900px] font-extrabold text-white text-2xl">
+        <h1>Music Name</h1>
         <h1>{handleTitle[arrayCount]}</h1>
       </div>
       <div className="flex justify-center mt-10">
